@@ -4,7 +4,6 @@ import mahrek.spVenus.business.abstracts.UserService;
 import mahrek.spVenus.core.dataAccess.UserDao;
 import mahrek.spVenus.core.entities.User;
 import mahrek.spVenus.core.entities.dtos.request.*;
-import mahrek.spVenus.core.entities.dtos.UserDto;
 import mahrek.spVenus.core.entities.dtos.response.CurrentUserResponseDto;
 import mahrek.spVenus.core.entities.dtos.response.UserListResponseDto;
 import mahrek.spVenus.core.entities.dtos.response.UserLoginResponseDto;
@@ -13,6 +12,7 @@ import mahrek.spVenus.core.security.jwt.JwtUtils;
 import mahrek.spVenus.core.utilities.converters.EntityDtoConverter;
 import mahrek.spVenus.core.utilities.results.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -41,26 +41,23 @@ public class UserManager implements UserService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    private EntityDtoConverter<User, UserListResponseDto> userToUserListResponseDtoConverter = new EntityDtoConverter(UserListResponseDto.class);
+
+
     private EntityDtoConverter<UserAddRequestDto, User> userAddRequestDtoToUserConverter = new EntityDtoConverter(User.class);
-    private EntityDtoConverter<User, UserLoginResponseDto> userToUserLoginResponseDtoConverter = new EntityDtoConverter(UserLoginResponseDto.class);
     private EntityDtoConverter<UserUpdateRequestDto, User> userUpdateRequestDtoToUserConverter = new EntityDtoConverter(User.class);
-    private EntityDtoConverter<User, CurrentUserResponseDto> userToCurrentUserResponseDtoConverter = new EntityDtoConverter(CurrentUserResponseDto.class);
 
     @Override
     public DataResult<List<UserListResponseDto>> getAllUser() {
         try {
-            List<UserListResponseDto> userListResponseDto = userDao.findAll()
-                    .stream().map(userToUserListResponseDtoConverter::convert)
-                    .collect(Collectors.toCollection(ArrayList::new));
-            return new SuccessDataResult<List<UserListResponseDto>>(userListResponseDto, "Kullanıcılar Getirildi");
+            List<UserListResponseDto> userListResponseDtos = userDao.findByUserListDto();
+            return new SuccessDataResult<List<UserListResponseDto>>(userListResponseDtos);
         } catch (Exception ex) {
-            return new ErrorDataResult<List<UserListResponseDto>>("Başarısız");
+            return new ErrorDataResult<List<UserListResponseDto>>("Bilinmeyen Bir Hata Oluştu");
         }
     }
 
     @Override
-    public Result signup(UserAddRequestDto userAddRequestDto) {
+    public Result signUp(UserAddRequestDto userAddRequestDto) {
         try {
             // Email kullanılıyor ise
             if (userDao.existsByEmail(userAddRequestDto.getEmail())) {
@@ -69,21 +66,17 @@ public class UserManager implements UserService {
                 User newUser = userAddRequestDtoToUserConverter.convert(userAddRequestDto);
                 newUser.setPassword(passwordEncoder.encode("123456789")); // varsayılan şifre
                 newUser.setIsPasswordChanged(true); // şifresini sıfırlamalı
-                newUser.setCreateDate(new Date());
-                newUser.setUpdateDate(new Date());
-                newUser.setIsDeleted(false); // başlangıçta silinmedi
                 newUser.setIsActive(true); // başlangıçta aktif olsun
                 userDao.save(newUser);
-                return new SuccessResult("Kayıt Edildi");
+                return new SuccessResult();
             }
-
         } catch (Exception ex) {
-            return new ErrorResult( "Başarısız");
+            return new ErrorResult( "Bilinmeyen Bir Hata Oluştu");
         }
     }
 
     @Override
-    public DataResult<UserLoginResponseDto> login(UserLoginRequestDto userLoginRequestDto) {
+    public DataResult<UserLoginResponseDto> logIn(UserLoginRequestDto userLoginRequestDto) {
         try{
             User user = userDao.findByEmail(userLoginRequestDto.getEmail());
             if(Objects.isNull(user)){
@@ -102,14 +95,19 @@ public class UserManager implements UserService {
             }
 
             String jwt = jwtUtils.generateJwtToken(user);
-            UserLoginResponseDto userLoginResponseDto = userToUserLoginResponseDtoConverter.convert(user);
+            UserLoginResponseDto userLoginResponseDto = userDao.findByEmailToUserLoginResponseDto(userLoginRequestDto.getEmail());
             userLoginResponseDto.setJwt(jwt);
-            user.setLastLoginDate(new Date());
             userDao.save(user);
-            return new SuccessDataResult<UserLoginResponseDto>(userLoginResponseDto, "Giriş Yapıldı");
+            return new SuccessDataResult<UserLoginResponseDto>(userLoginResponseDto);
         } catch (Exception ex){
-            return new ErrorDataResult<UserLoginResponseDto>("Bilinmeyen Bir Hata Oluştu: " + ex);
+            return new ErrorDataResult<UserLoginResponseDto>("Bilinmeyen Bir Hata Oluştu" + ex);
         }
+    }
+
+    @Override
+    @CacheEvict(value = "currentStudent", allEntries = true)
+    public Result logOut() {
+        return new SuccessResult();
     }
 
     @Override
@@ -121,9 +119,8 @@ public class UserManager implements UserService {
             }
             user.setPassword(passwordEncoder.encode("123456789"));
             user.setIsPasswordChanged(true); // şifre değiştirmek zorunda olsun
-            user.setUpdateDate(new Date());
             userDao.save(user);
-            return new SuccessResult("Şifre Sıfırlandı");
+            return new SuccessResult();
         } catch (Exception ex){
             return new ErrorResult("Bilinmeyen Bir Hata Oluştu");
         }
@@ -140,9 +137,8 @@ public class UserManager implements UserService {
             }
             user.setPassword(passwordEncoder.encode(userChangePasswordRequestDto.getPassword()));
             user.setIsPasswordChanged(false); // şifre değiştirildi false
-            user.setUpdateDate(new Date());
             userDao.save(user);
-            return new SuccessResult("Şifre Değiştirildi");
+            return new SuccessResult();
         } catch (Exception ex){
             return new ErrorResult("Bilinmeyen Bir Hata Oluştu");
         }
@@ -155,9 +151,6 @@ public class UserManager implements UserService {
             if(Objects.isNull(user)){
                 return new ErrorResult("Kullanıcı Bulunamadı");
             }
-            user.setUpdateDate(new Date());
-            user.setDeleteDate(new Date());
-            user.setIsDeleted(true); // silindi
             user.setIsActive(false); // artık aktif değil
             userDao.save(user);
             return new SuccessResult("Kullanıcı Silindi");
@@ -176,26 +169,22 @@ public class UserManager implements UserService {
             User findUser = userDao.findByEmail(userUpdateRequestDto.getEmail());
             if(!Objects.isNull(findUser)){
                 if(findUser.getUserId() != userId){
-                    return new ErrorResult("Bu Email Kullanımda");
+                    return new ErrorResult("Bu Email Kullanılıyor");
                 }
             }
-            User newUser = userUpdateRequestDtoToUserConverter.convert(userUpdateRequestDto);
-            newUser.setUserId(userId);
-            newUser.setPassword(oldUser.getPassword());
-            newUser.setIsDeleted(oldUser.getIsDeleted());
-            newUser.setIsPasswordChanged(oldUser.getIsPasswordChanged());
-            newUser.setCreateDate(oldUser.getCreateDate());
-            newUser.setUpdateDate(new Date());
-            newUser.setDeleteDate(oldUser.getDeleteDate());
-            newUser.setLastLoginDate(oldUser.getLastLoginDate());
-            userDao.save(newUser);
-            return new SuccessResult("Kullanıcı Güncellendi");
+            User updateUser = userUpdateRequestDtoToUserConverter.convert(userUpdateRequestDto);
+            updateUser.setUserId(userId);
+            updateUser.setPassword(oldUser.getPassword());
+            updateUser.setIsPasswordChanged(oldUser.getIsPasswordChanged());
+            updateUser.setIsActive(oldUser.getIsActive());
+            userDao.save(updateUser);
+            return new SuccessResult();
         } catch (Exception ex){
             return new ErrorResult("Bilinmeyen Bir Hata Oluştu");
         }
     }
 
-    @Override
+    @Override // Kullanıcını aktiflik durumu değişir
     public Result activeChangeUser(UserActiveRequestDto userActiveRequestDto) {
         try {
             User user = userDao.findByEmail(userActiveRequestDto.getEmail());
@@ -203,7 +192,6 @@ public class UserManager implements UserService {
                 return new ErrorResult("Kullanıcı Bulunamadı");
             }
             user.setIsActive(!user.getIsActive());
-            user.setUpdateDate(new Date());
             userDao.save(user);
             String result = user.getIsActive()?"Kullanıcı Aktif Edildi":"Kullanıcı Pasif Edildi";
             return new SuccessResult(result);
@@ -212,16 +200,20 @@ public class UserManager implements UserService {
         }
     }
 
-    @Override
+    @Override // aktif kullanıcıyı verir
     public DataResult<CurrentUserResponseDto> currentUser() {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserDetailsManager userDetailsManager = (UserDetailsManager) auth.getPrincipal();
-            User user = userDao.findByEmail(userDetailsManager.getUsername());
-            CurrentUserResponseDto currentUserResponseDto = userToCurrentUserResponseDtoConverter.convert(user);
+//            if(userDetailsManager.getRole().equals("1")){
+//                return new SuccessDataResult<CurrentUserResponseDto>("Role 1");
+//            }
+            CurrentUserResponseDto currentUserResponseDto = userDao.findByEmailToCurrentUserResponseDto(userDetailsManager.getUsername());
             return new SuccessDataResult<CurrentUserResponseDto>(currentUserResponseDto);
         } catch (Exception ex){
-            return new ErrorDataResult<CurrentUserResponseDto>("Bilinmeyen Bir Hata Oluştu: " + ex);
+            return new ErrorDataResult<CurrentUserResponseDto>("Kullanıcı Bilgisi Getirilemedi");
         }
     }
+
+
 }

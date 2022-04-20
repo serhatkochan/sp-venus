@@ -1,13 +1,15 @@
-package mahrek.spVenus.core.entities.dtos.request;
+package mahrek.spVenus.entities.concretes.dtos.request;
 
 import lombok.Data;
 
 @Data
-public class UserAddRequestDto {
+public class StudentAddRequestDto {
+    private String studentNo;
     private String email;
     private String firstName;
     private String lastName;
     private String phoneNumber;
     private Integer districtId;
     private String role;
+
 }

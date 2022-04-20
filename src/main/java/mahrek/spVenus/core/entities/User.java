@@ -1,16 +1,16 @@
 package mahrek.spVenus.core.entities;
 
 import lombok.Data;
+import mahrek.spVenus.entities.concretes.Student;
+import org.hibernate.annotations.Where;
+import org.springframework.data.redis.core.RedisHash;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 
+//@Where(clause = "is_deleted != true")
 @Entity
 @Data
 @Table(name = "users")
@@ -29,21 +29,14 @@ public class User {
     private String lastName;
     @Column(name = "phone_number")
     private String phoneNumber;
+    @ManyToOne
+    @JoinColumn(name = "district_id")
+    private District district;
     @Column(name = "role")
     private String role;
     @Column(name = "is_active")
     private Boolean isActive;
-    @Column(name = "is_deleted")
-    private Boolean isDeleted;
     @Column(name = "is_password_changed")
     private Boolean isPasswordChanged;
-    @Column(name = "create_date")
-    private Date createDate;
-    @Column(name = "update_date")
-    private Date updateDate;
-    @Column(name = "delete_date")
-    private Date deleteDate;
-    @Column(name = "last_login_date")
-    private Date lastLoginDate;
 
 }

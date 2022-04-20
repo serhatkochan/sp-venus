@@ -31,6 +31,8 @@ public class UserDetailsManager implements UserDetails {
         return user.getUserId();
     }
 
+    public String getRole(){return user.getRole();}
+
     @Override
     public String getPassword() {
         return user.getPassword();

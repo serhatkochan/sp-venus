@@ -5,6 +5,8 @@ import io.swagger.annotations.Authorization;
 import mahrek.spVenus.business.abstracts.UserService;
 import mahrek.spVenus.core.entities.dtos.request.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,17 +19,21 @@ public class UsersController {
     UserService userService;
 
     @GetMapping("")
-    public ResponseEntity<?> getAllUsers(){
+    public ResponseEntity<?> getAllUser(){
         return ResponseEntity.ok(userService.getAllUser());
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody UserAddRequestDto userAddDto){
-        return ResponseEntity.ok(userService.signup(userAddDto));
+    public ResponseEntity<?> signUp(@RequestBody UserAddRequestDto userAddDto){
+        return ResponseEntity.ok(userService.signUp(userAddDto));
     }
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequestDto userLoginRequestDto){
-        return ResponseEntity.ok(userService.login(userLoginRequestDto));
+    public ResponseEntity<?> logIn(@RequestBody UserLoginRequestDto userLoginRequestDto){
+        return ResponseEntity.ok(userService.logIn(userLoginRequestDto));
+    }
+    @DeleteMapping("/logOut")
+    public ResponseEntity<?> logOut(){
+        return ResponseEntity.ok(userService.logOut());
     }
     @PostMapping("/forgetPassword")
     public ResponseEntity<?> forgetPassword(@RequestBody UserForgetPasswordRequestDto userForgetPasswordRequestDto){
@@ -50,9 +56,20 @@ public class UsersController {
         return ResponseEntity.ok(userService.activeChangeUser(userActiveRequestDto));
     }
 
-    @ApiOperation(value = "This method is used to get the clients.")
     @GetMapping("/currentUser")
-    public ResponseEntity<?> currentUser(){
+    public ResponseEntity<?> currentUser() {
         return ResponseEntity.ok(userService.currentUser());
+    }
+
+    @GetMapping("/cacheAdd")
+    @Cacheable(cacheNames = "test")
+    public ResponseEntity<?> cacheAdd() throws InterruptedException{
+        Thread.sleep(5000L);
+        return ResponseEntity.ok("test");
+    }
+    @GetMapping("cacheDelete")
+    @CacheEvict("currentUser")
+    public void cacheDelete(){
+
     }
 }

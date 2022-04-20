@@ -1,12 +1,20 @@
-package mahrek.spVenus.core.entities.dtos.response;
+package mahrek.spVenus.entities.concretes.dtos.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.hibernate.annotations.Where;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
+import org.springframework.data.redis.core.RedisHash;
+
+import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
-public class UserListResponseDto {
+@Getter
+@Builder
+@NoArgsConstructor
+public class CurrentStudentResponseDto {
+
+    private Integer studentId;
+    private String studentNo;
     private Integer userId;
     private String email;
     private String firstName;
@@ -18,5 +26,4 @@ public class UserListResponseDto {
     private String provinceName;
     private String role;
     private Boolean isActive;
-
 }
