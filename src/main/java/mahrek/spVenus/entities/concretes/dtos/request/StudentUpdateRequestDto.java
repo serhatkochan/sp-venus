@@ -10,6 +10,7 @@ public class StudentUpdateRequestDto {
     private String email;
     private String firstName;
     private String lastName;
+    private Boolean isActive;
     private String phoneNumber;
     private Integer districtId;
     private String role;

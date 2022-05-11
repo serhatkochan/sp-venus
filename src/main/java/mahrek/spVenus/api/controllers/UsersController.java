@@ -24,16 +24,17 @@ public class UsersController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody UserAddRequestDto userAddDto){
-        return ResponseEntity.ok(userService.signUp(userAddDto));
+    public ResponseEntity<?> singup(@RequestBody UserAddRequestDto userAddDto){
+        return ResponseEntity.ok(userService.singup(userAddDto));
     }
     @PostMapping("/login")
+    @CacheEvict("currentUser")
     public ResponseEntity<?> logIn(@RequestBody UserLoginRequestDto userLoginRequestDto){
-        return ResponseEntity.ok(userService.logIn(userLoginRequestDto));
+        return ResponseEntity.ok(userService.login(userLoginRequestDto));
     }
-    @DeleteMapping("/logOut")
-    public ResponseEntity<?> logOut(){
-        return ResponseEntity.ok(userService.logOut());
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(){
+        return ResponseEntity.ok(userService.logout());
     }
     @PostMapping("/forgetPassword")
     public ResponseEntity<?> forgetPassword(@RequestBody UserForgetPasswordRequestDto userForgetPasswordRequestDto){
@@ -61,15 +62,4 @@ public class UsersController {
         return ResponseEntity.ok(userService.currentUser());
     }
 
-    @GetMapping("/cacheAdd")
-    @Cacheable(cacheNames = "test")
-    public ResponseEntity<?> cacheAdd() throws InterruptedException{
-        Thread.sleep(5000L);
-        return ResponseEntity.ok("test");
-    }
-    @GetMapping("cacheDelete")
-    @CacheEvict("currentUser")
-    public void cacheDelete(){
-
-    }
 }

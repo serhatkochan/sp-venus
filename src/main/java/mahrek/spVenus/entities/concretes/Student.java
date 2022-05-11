@@ -18,4 +18,5 @@ public class Student {
     @OneToOne(cascade = CascadeType.MERGE, orphanRemoval = true)
     @JoinColumn(name = "user_id")
     private User user;
+
 }

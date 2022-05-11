@@ -32,7 +32,6 @@
 			<scope>test</scope>
 		</dependency>
 
-
 		<!--Database-->
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -46,7 +45,6 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-
 
 		<!--Swagger-->
 		<dependency>

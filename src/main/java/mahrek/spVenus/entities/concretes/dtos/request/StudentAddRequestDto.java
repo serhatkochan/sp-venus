@@ -11,5 +11,6 @@ public class StudentAddRequestDto {
     private String phoneNumber;
     private Integer districtId;
     private String role;
+    private Boolean isActive;
 
 }

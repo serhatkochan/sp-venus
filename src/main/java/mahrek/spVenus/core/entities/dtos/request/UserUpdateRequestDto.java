@@ -8,6 +8,7 @@ public class UserUpdateRequestDto {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+    private Integer districtId;
     private String role;
     private Boolean isActive;
 }

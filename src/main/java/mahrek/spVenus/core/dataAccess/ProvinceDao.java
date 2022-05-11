@@ -2,6 +2,7 @@ package mahrek.spVenus.core.dataAccess;
 
 import mahrek.spVenus.core.entities.Province;
 import mahrek.spVenus.core.entities.dtos.ProvinceDto;
+import mahrek.spVenus.core.entities.dtos.response.ProvinceListDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -12,4 +13,7 @@ public interface ProvinceDao extends JpaRepository<Province, Integer> {
             + "( p.provinceName, p.provinceNo)"
             + " From Province p")
     List<ProvinceDto> getAllProvinceDto();
+
+    List<Province> findAll();
+
 }

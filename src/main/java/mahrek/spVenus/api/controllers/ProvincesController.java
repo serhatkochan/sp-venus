@@ -20,4 +20,9 @@ public class ProvincesController {
     public ResponseEntity<?> getAllProvince(){
         return ResponseEntity.ok(provinceService.getAllProvinceDto());
     }
+
+    @GetMapping("/getAllProvinceList")
+    public ResponseEntity<?> getAllProvinceList(){
+        return ResponseEntity.ok(provinceService.getAllProvinceListDto());
+    }
 }

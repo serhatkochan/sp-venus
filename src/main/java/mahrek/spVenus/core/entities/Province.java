@@ -17,5 +17,7 @@ public class Province {
     private String provinceName;
     @Column(name = "province_no")
     private String provinceNo;
+    @OneToMany(mappedBy = "province", cascade = CascadeType.ALL)
+	private List<District> districts;
 
 }

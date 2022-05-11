@@ -13,4 +13,6 @@ public interface DistrictDao extends JpaRepository<District, Integer> {
             + " From District d"
             + " Inner Join d.province p")
     List<DistrictDto> getAllDistrictDto();
+
+    District findByDistrictId(Integer districtId);
 }

@@ -1,6 +1,7 @@
 package mahrek.spVenus.business.concretes;
 
 import mahrek.spVenus.business.abstracts.StudentService;
+import mahrek.spVenus.core.dataAccess.DistrictDao;
 import mahrek.spVenus.core.dataAccess.UserDao;
 import mahrek.spVenus.core.entities.User;
 import mahrek.spVenus.core.entities.dtos.response.CurrentUserResponseDto;
@@ -12,6 +13,7 @@ import mahrek.spVenus.entities.concretes.Student;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentAddRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentUpdateRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.response.CurrentStudentResponseDto;
+import mahrek.spVenus.entities.concretes.dtos.response.FindByStudentResponseDto;
 import mahrek.spVenus.entities.concretes.dtos.response.StudentListResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +35,8 @@ public class StudentManager implements StudentService {
     StudentDao studentDao;
     @Autowired
     UserDao userDao;
+    @Autowired
+    DistrictDao districtDao;
     @Autowired
     PasswordEncoder passwordEncoder;
 
@@ -60,7 +65,7 @@ public class StudentManager implements StudentService {
             User newUser = studentAddRequestDtoToUserConverter.convert(studentAddRequestDto);
             newUser.setPassword(passwordEncoder.encode(studentAddRequestDto.getStudentNo()));
             newUser.setIsPasswordChanged(true);
-            newUser.setIsActive(true);
+            newUser.setIsActive(studentAddRequestDto.getIsActive());
             userDao.save(newUser);
             Student newStudent = new Student();
             newStudent.setStudentNo(studentAddRequestDto.getStudentNo());
@@ -94,7 +99,8 @@ public class StudentManager implements StudentService {
             updateUser.setUserId(oldStudent.getUser().getUserId());
             updateUser.setPassword(oldStudent.getUser().getPassword());
             updateUser.setIsPasswordChanged(oldStudent.getUser().getIsPasswordChanged());
-            updateUser.setIsActive(oldStudent.getUser().getIsActive());
+            updateUser.setIsActive(studentUpdateRequestDto.getIsActive());
+//            updateUser.setDistrict(districtDao.findByDistrictId(studentUpdateRequestDto.getDistrictId()));
 //            userDao.save(updateUser);
             Student updateStudent = new Student();
             updateStudent.setStudentId(studentId);
@@ -120,7 +126,7 @@ public class StudentManager implements StudentService {
 
     // @CacheEvict(value = "currentUser", allEntries = true)
     @Override
-    public DataResult<CurrentStudentResponseDto> currentStudent() {
+    public DataResult<CurrentStudentResponseDto> currentStudent()  {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserDetailsManager userDetailsManager = (UserDetailsManager) auth.getPrincipal();
@@ -132,6 +138,15 @@ public class StudentManager implements StudentService {
             return new SuccessDataResult<CurrentStudentResponseDto>(currentStudentResponseDto);
         } catch (Exception ex){
             return new ErrorDataResult<CurrentStudentResponseDto>("Student Bilgisi Getirilemedi");
+        }
+    }
+
+    @Override
+    public DataResult<FindByStudentResponseDto> findByStudent(Integer studentId){
+        try{
+            return new SuccessDataResult<FindByStudentResponseDto>(studentDao.findByStudentIdToFindByStudentResponseDto(studentId));
+        } catch (Exception ex){
+            return new ErrorDataResult<FindByStudentResponseDto>("Student Bilgisi Getirilemedi");
         }
     }
 

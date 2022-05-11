@@ -12,9 +12,9 @@ import java.util.List;
 
 public interface UserService {
     DataResult<List<UserListResponseDto>> getAllUser();
-    Result signUp(UserAddRequestDto userAddRequestDto);
-    DataResult<UserLoginResponseDto> logIn(UserLoginRequestDto userLoginRequestDto);
-    Result logOut();
+    Result singup(UserAddRequestDto userAddRequestDto);
+    DataResult<UserLoginResponseDto> login(UserLoginRequestDto userLoginRequestDto);
+    Result logout();
     Result forgetPassword(UserForgetPasswordRequestDto userForgetPasswordRequestDto);
     Result changePassword(UserChangePasswordRequestDto userChangePasswordRequestDto);
     Result deleteUser(Integer userId);

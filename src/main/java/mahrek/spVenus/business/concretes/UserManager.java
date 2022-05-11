@@ -57,7 +57,7 @@ public class UserManager implements UserService {
     }
 
     @Override
-    public Result signUp(UserAddRequestDto userAddRequestDto) {
+    public Result singup(UserAddRequestDto userAddRequestDto) {
         try {
             // Email kullanılıyor ise
             if (userDao.existsByEmail(userAddRequestDto.getEmail())) {
@@ -76,7 +76,7 @@ public class UserManager implements UserService {
     }
 
     @Override
-    public DataResult<UserLoginResponseDto> logIn(UserLoginRequestDto userLoginRequestDto) {
+    public DataResult<UserLoginResponseDto> login(UserLoginRequestDto userLoginRequestDto) {
         try{
             User user = userDao.findByEmail(userLoginRequestDto.getEmail());
             if(Objects.isNull(user)){
@@ -106,7 +106,7 @@ public class UserManager implements UserService {
 
     @Override
     @CacheEvict(value = "currentStudent", allEntries = true)
-    public Result logOut() {
+    public Result logout() {
         return new SuccessResult();
     }
 

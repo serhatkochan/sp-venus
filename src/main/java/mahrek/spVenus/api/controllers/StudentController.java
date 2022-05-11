@@ -9,6 +9,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @CrossOrigin
 @RestController
 @RequestMapping("api/students")
@@ -33,8 +35,12 @@ public class StudentController {
         return ResponseEntity.ok(studentService.deleteStudent(studentId));
     }
     @GetMapping("/currentStudent")
-    public ResponseEntity<?> currentStudent(){
+    public ResponseEntity<?> currentStudent(){ // Principal principal
         return ResponseEntity.ok(studentService.currentStudent());
+    }
+    @GetMapping("/findByStudenId{studentId}")
+    public ResponseEntity<?> findByStudentId(@RequestParam("studentId") Integer studentId){
+        return ResponseEntity.ok(studentService.findByStudent(studentId));
     }
 
 }
