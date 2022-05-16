@@ -1,0 +1,14 @@
+package mahrek.spVenus.entities.concretes.dtos.request;
+
+import lombok.Data;
+
+@Data
+public class StudentFilterRequestDto {
+    private String studentNo;
+    private String email;
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+    private Integer districtId;
+    private String provinceNo;
+}

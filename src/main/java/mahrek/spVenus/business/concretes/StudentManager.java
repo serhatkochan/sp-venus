@@ -11,6 +11,7 @@ import mahrek.spVenus.core.utilities.results.*;
 import mahrek.spVenus.dataAccess.StudentDao;
 import mahrek.spVenus.entities.concretes.Student;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentAddRequestDto;
+import mahrek.spVenus.entities.concretes.dtos.request.StudentFilterRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentUpdateRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.response.CurrentStudentResponseDto;
 import mahrek.spVenus.entities.concretes.dtos.response.FindByStudentResponseDto;
@@ -50,6 +51,17 @@ public class StudentManager implements StudentService {
             return new SuccessDataResult<List<StudentListResponseDto>>(studentDao.findByStudentListResponseDto());
         } catch (Exception ex) {
             return new ErrorDataResult<List<StudentListResponseDto>>("Bilinmeyen Bir Hata Oluştu");
+        }
+    }
+    @Override
+    public DataResult<List<StudentListResponseDto>> findByFilters(StudentFilterRequestDto studentFilterRequestDto){
+        try {
+//            return new SuccessDataResult<List<StudentListResponseDto>>("hata" +studentFilterRequestDto);
+
+
+            return new SuccessDataResult<List<StudentListResponseDto>>(studentDao.findByFilters(studentFilterRequestDto), "obje:" + studentFilterRequestDto);
+        } catch (Exception ex){
+            return new ErrorDataResult<List<StudentListResponseDto>>("Bilinmeyen Bir Hata Oluştu"+ex);
         }
     }
 
@@ -98,6 +110,9 @@ public class StudentManager implements StudentService {
             User updateUser = studentUpdateRequestDtoToUserConverter.convert(studentUpdateRequestDto);
             updateUser.setUserId(oldStudent.getUser().getUserId());
             updateUser.setPassword(oldStudent.getUser().getPassword());
+            if(Objects.isNull(updateUser.getRole())){
+                updateUser.setRole(oldStudent.getUser().getRole());
+            }
             updateUser.setIsPasswordChanged(oldStudent.getUser().getIsPasswordChanged());
             updateUser.setIsActive(studentUpdateRequestDto.getIsActive());
 //            updateUser.setDistrict(districtDao.findByDistrictId(studentUpdateRequestDto.getDistrictId()));
@@ -126,6 +141,7 @@ public class StudentManager implements StudentService {
 
     // @CacheEvict(value = "currentUser", allEntries = true)
     @Override
+    @Cacheable(value = "currentStudent", key = "1")
     public DataResult<CurrentStudentResponseDto> currentStudent()  {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();

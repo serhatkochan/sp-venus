@@ -2,6 +2,7 @@ package mahrek.spVenus.api.controllers;
 
 import mahrek.spVenus.business.abstracts.StudentService;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentAddRequestDto;
+import mahrek.spVenus.entities.concretes.dtos.request.StudentFilterRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentUpdateRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.response.CurrentStudentResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,10 @@ public class StudentController {
     @GetMapping("")
     public ResponseEntity<?> getAllStudent(){
         return ResponseEntity.ok(studentService.findByStudentListResponseDto());
+    }
+    @PostMapping("/findByFilters")
+    public ResponseEntity<?> findByFilters(@RequestBody  StudentFilterRequestDto studentFilterRequestDto){
+        return ResponseEntity.ok(studentService.findByFilters(studentFilterRequestDto));
     }
     @PostMapping("/addStudent")
     public ResponseEntity<?> addStudent(@RequestBody StudentAddRequestDto studentAddRequestDto){
