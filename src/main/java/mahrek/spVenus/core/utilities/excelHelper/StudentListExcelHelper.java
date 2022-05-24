@@ -1,6 +1,4 @@
 package mahrek.spVenus.core.utilities.excelHelper;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -12,7 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-public class ExcelHelper {
+public class StudentListExcelHelper {
     public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     static String[] HEADERs = { "Student No", "Email", "First Name", "Last Name" , "Phone Number", "District Name", "Province Name", "Role", "Is Active"};
     static String SHEET = "Students";
@@ -21,7 +19,7 @@ public class ExcelHelper {
     private Sheet sheet;
     private List<StudentListExcelResponseDto> studentListExcelResponseDto;
 
-    public ExcelHelper(List<StudentListExcelResponseDto> studentListExcelResponseDto){
+    public StudentListExcelHelper(List<StudentListExcelResponseDto> studentListExcelResponseDto){
         this.studentListExcelResponseDto = studentListExcelResponseDto;
         workbook = new XSSFWorkbook();
         sheet = workbook.createSheet(SHEET);
@@ -51,6 +49,7 @@ public class ExcelHelper {
 
         for (StudentListExcelResponseDto student : studentListExcelResponseDto) {
             Row row = sheet.createRow(rowIdx++);
+
 
             Cell cell = row.createCell(0);
             cell.setCellValue(student.getStudentNo());

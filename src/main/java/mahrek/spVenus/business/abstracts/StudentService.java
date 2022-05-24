@@ -11,6 +11,7 @@ import mahrek.spVenus.entities.concretes.dtos.response.StudentListExcelResponseD
 import mahrek.spVenus.entities.concretes.dtos.response.StudentListResponseDto;
 import org.springframework.cache.annotation.Cacheable;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
 public interface StudentService {
     DataResult<List<StudentListResponseDto>> findByStudentListResponseDto();
     DataResult<List<StudentListResponseDto>> findByFilters(StudentFilterRequestDto studentFilterRequestDto);
-    DataResult<List<StudentListExcelResponseDto>> exportToExcel(StudentFilterRequestDto studentFilterRequestDto);
+    Result exportToExcel(HttpServletResponse response, StudentFilterRequestDto studentFilterRequestDto);
     Result addStudent(StudentAddRequestDto studentAddRequestDto);
     Result updateStudent(Integer studentId, StudentUpdateRequestDto studentUpdateRequestDto);
     Result deleteStudent(Integer studentId);

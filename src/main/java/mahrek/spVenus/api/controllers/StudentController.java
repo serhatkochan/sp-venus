@@ -1,26 +1,14 @@
 package mahrek.spVenus.api.controllers;
 
 import mahrek.spVenus.business.abstracts.StudentService;
-import mahrek.spVenus.core.utilities.excelHelper.ExcelHelper;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentAddRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentFilterRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentUpdateRequestDto;
-import mahrek.spVenus.entities.concretes.dtos.response.CurrentStudentResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.security.Principal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.springframework.core.io.Resource;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -50,21 +38,8 @@ public class StudentController {
 //                .body(file);
 //    }
     @PostMapping("/exportToExcel")
-    public void exportToExcel(HttpServletResponse response, @RequestBody StudentFilterRequestDto studentFilterRequestDto) throws IOException {
-//        response.setContentType("application/octet-stream");
-
-        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-        String currentDateTime = dateFormatter.format(new Date());
-        String fileName = "student-list-" + currentDateTime;
-
-        response.setHeader("Access-Control-Expose-Headers", "Content-Disposition"); //IMPORTANT FOR React.js content-disposition get Name
-        response.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=" + fileName+".xlsx");
-
-
-
-        ExcelHelper excelHelper = new ExcelHelper(studentService.exportToExcel(studentFilterRequestDto).getData());
-        excelHelper.export(response);
+    public ResponseEntity<?> exportToExcel(HttpServletResponse response, @RequestBody StudentFilterRequestDto studentFilterRequestDto) throws IOException {
+        return ResponseEntity.ok(studentService.exportToExcel(response, studentFilterRequestDto));
     }
     @PostMapping("/addStudent")
     public ResponseEntity<?> addStudent(@RequestBody StudentAddRequestDto studentAddRequestDto){

@@ -4,10 +4,9 @@ import mahrek.spVenus.business.abstracts.StudentService;
 import mahrek.spVenus.core.dataAccess.DistrictDao;
 import mahrek.spVenus.core.dataAccess.UserDao;
 import mahrek.spVenus.core.entities.User;
-import mahrek.spVenus.core.entities.dtos.response.CurrentUserResponseDto;
 import mahrek.spVenus.core.security.concretes.UserDetailsManager;
 import mahrek.spVenus.core.utilities.converters.EntityDtoConverter;
-import mahrek.spVenus.core.utilities.excelHelper.ExcelHelper;
+import mahrek.spVenus.core.utilities.excelHelper.StudentListExcelHelper;
 import mahrek.spVenus.core.utilities.results.*;
 import mahrek.spVenus.dataAccess.StudentDao;
 import mahrek.spVenus.entities.concretes.Student;
@@ -16,7 +15,6 @@ import mahrek.spVenus.entities.concretes.dtos.request.StudentFilterRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentUpdateRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.response.CurrentStudentResponseDto;
 import mahrek.spVenus.entities.concretes.dtos.response.FindByStudentResponseDto;
-import mahrek.spVenus.entities.concretes.dtos.response.StudentListExcelResponseDto;
 import mahrek.spVenus.entities.concretes.dtos.response.StudentListResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -27,16 +25,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 @Service
 public class StudentManager implements StudentService {
@@ -64,19 +57,27 @@ public class StudentManager implements StudentService {
     @Override
     public DataResult<List<StudentListResponseDto>> findByFilters(StudentFilterRequestDto studentFilterRequestDto){
         try {
-//            return new SuccessDataResult<List<StudentListResponseDto>>("hata" +studentFilterRequestDto);
             return new SuccessDataResult<List<StudentListResponseDto>>(studentDao.findByFilters(studentFilterRequestDto));
         } catch (Exception ex){
             return new ErrorDataResult<List<StudentListResponseDto>>("Bilinmeyen Bir Hata Oluştu"+ex);
         }
     }
     @Override
-    public DataResult<List<StudentListExcelResponseDto>> exportToExcel(StudentFilterRequestDto studentFilterRequestDto){
+    public Result exportToExcel(HttpServletResponse response, StudentFilterRequestDto studentFilterRequestDto){
         try {
-//            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-            return new SuccessDataResult<List<StudentListExcelResponseDto>>(studentDao.findByExcelExport(studentFilterRequestDto));
+            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+            String currentDateTime = dateFormatter.format(new Date());
+            String fileName = "student-list-" + currentDateTime;
+
+            response.setHeader("Access-Control-Expose-Headers", "Content-Disposition"); //IMPORTANT FOR React.js content-disposition get Name
+            response.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName+".xlsx");
+
+            StudentListExcelHelper studentListExcelHelper = new StudentListExcelHelper(studentDao.findByExcelExport(studentFilterRequestDto));
+            studentListExcelHelper.export(response);
+            return new SuccessResult();
         } catch (Exception ex){
-            return new ErrorDataResult<List<StudentListExcelResponseDto>>("Bilinmeyen Bir Hata Oluştu"+ex);
+            return new ErrorResult("Bilinmeyen Bir Hata Oluştu");
         }
     }
 
