@@ -1,16 +1,24 @@
 package mahrek.spVenus.api.controllers;
 
+import com.lowagie.text.DocumentException;
 import mahrek.spVenus.business.abstracts.StudentService;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentAddRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentFilterRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentUpdateRequestDto;
+import mahrek.spVenus.entities.concretes.dtos.response.StudentListExcelResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
+import java.util.List;
+
+import com.lowagie.text.DocumentException;
 
 @CrossOrigin
 @RestController
@@ -40,6 +48,10 @@ public class StudentController {
     @PostMapping("/exportToExcel")
     public ResponseEntity<?> exportToExcel(HttpServletResponse response, @RequestBody StudentFilterRequestDto studentFilterRequestDto) throws IOException {
         return ResponseEntity.ok(studentService.exportToExcel(response, studentFilterRequestDto));
+    }
+    @PostMapping("/exportToPdf")
+    public ResponseEntity<?> exportToPDF(HttpServletResponse response, @RequestBody StudentFilterRequestDto studentFilterRequestDto) throws DocumentException, IOException {
+        return ResponseEntity.ok(studentService.exportToPdf(response, studentFilterRequestDto));
     }
     @PostMapping("/addStudent")
     public ResponseEntity<?> addStudent(@RequestBody StudentAddRequestDto studentAddRequestDto){

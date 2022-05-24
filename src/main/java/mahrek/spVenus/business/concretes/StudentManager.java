@@ -7,6 +7,7 @@ import mahrek.spVenus.core.entities.User;
 import mahrek.spVenus.core.security.concretes.UserDetailsManager;
 import mahrek.spVenus.core.utilities.converters.EntityDtoConverter;
 import mahrek.spVenus.core.utilities.excelHelper.StudentListExcelHelper;
+import mahrek.spVenus.core.utilities.pdfHelper.StudentListPdfHelper;
 import mahrek.spVenus.core.utilities.results.*;
 import mahrek.spVenus.dataAccess.StudentDao;
 import mahrek.spVenus.entities.concretes.Student;
@@ -75,6 +76,24 @@ public class StudentManager implements StudentService {
 
             StudentListExcelHelper studentListExcelHelper = new StudentListExcelHelper(studentDao.findByExcelExport(studentFilterRequestDto));
             studentListExcelHelper.export(response);
+            return new SuccessResult();
+        } catch (Exception ex){
+            return new ErrorResult("Bilinmeyen Bir Hata Oluştu");
+        }
+    }
+    @Override
+    public Result exportToPdf(HttpServletResponse response, StudentFilterRequestDto studentFilterRequestDto){
+        try {
+            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+            String currentDateTime = dateFormatter.format(new Date());
+            String fileName = "student-list-" + currentDateTime;
+
+            response.setHeader("Access-Control-Expose-Headers", "Content-Disposition"); //IMPORTANT FOR React.js content-disposition get Name
+            response.setHeader("Content-Type", "application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName+".pdf");
+
+            StudentListPdfHelper studentListPdfHelper = new StudentListPdfHelper(studentDao.findByExcelExport(studentFilterRequestDto));
+            studentListPdfHelper.export(response);
             return new SuccessResult();
         } catch (Exception ex){
             return new ErrorResult("Bilinmeyen Bir Hata Oluştu");

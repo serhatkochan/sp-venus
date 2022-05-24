@@ -20,6 +20,7 @@ public interface StudentService {
     DataResult<List<StudentListResponseDto>> findByStudentListResponseDto();
     DataResult<List<StudentListResponseDto>> findByFilters(StudentFilterRequestDto studentFilterRequestDto);
     Result exportToExcel(HttpServletResponse response, StudentFilterRequestDto studentFilterRequestDto);
+    Result exportToPdf(HttpServletResponse response, StudentFilterRequestDto studentFilterRequestDto);
     Result addStudent(StudentAddRequestDto studentAddRequestDto);
     Result updateStudent(Integer studentId, StudentUpdateRequestDto studentUpdateRequestDto);
     Result deleteStudent(Integer studentId);
