@@ -16,6 +16,7 @@ import mahrek.spVenus.entities.concretes.dtos.request.StudentFilterRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.request.StudentUpdateRequestDto;
 import mahrek.spVenus.entities.concretes.dtos.response.CurrentStudentResponseDto;
 import mahrek.spVenus.entities.concretes.dtos.response.FindByStudentResponseDto;
+import mahrek.spVenus.entities.concretes.dtos.response.StudentListExcelResponseDto;
 import mahrek.spVenus.entities.concretes.dtos.response.StudentListResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -70,13 +71,12 @@ public class StudentManager implements StudentService {
         }
     }
     @Override
-    public DataResult<ByteArrayInputStream> exportToExcel(StudentFilterRequestDto studentFilterRequestDto){
+    public DataResult<List<StudentListExcelResponseDto>> exportToExcel(StudentFilterRequestDto studentFilterRequestDto){
         try {
 //            DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-            ByteArrayInputStream in = ExcelHelper.studentToExcel(studentDao.findByExcelExport(studentFilterRequestDto));
-            return new SuccessDataResult<ByteArrayInputStream>(in);
+            return new SuccessDataResult<List<StudentListExcelResponseDto>>(studentDao.findByExcelExport(studentFilterRequestDto));
         } catch (Exception ex){
-            return new ErrorDataResult<ByteArrayInputStream>("Bilinmeyen Bir Hata Oluştu"+ex);
+            return new ErrorDataResult<List<StudentListExcelResponseDto>>("Bilinmeyen Bir Hata Oluştu"+ex);
         }
     }
 
